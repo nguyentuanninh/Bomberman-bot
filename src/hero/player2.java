@@ -1,3 +1,5 @@
+package src.hero;
+
 import io.socket.emitter.Emitter;
 import jsclub.codefest.sdk.model.Hero;
 import jsclub.codefest.sdk.socket.data.GameInfo;
@@ -8,7 +10,7 @@ import java.util.Random;
 public class player2 {
 
     final static String SERVER_ID= "https://codefest.jsclub.me/";
-    final static String PLAYER_ID = "player2-xxx";
+    final static String PLAYER_ID = "src.hero.player2-xxx";
     final static String GAME_ID = "5f1d7366-e91b-453a-ad39-545805fabc44";
 
     public static String getRandomPath(int length){

@@ -10,8 +10,8 @@ import java.util.Random;
 public class player2 {
 
     final static String SERVER_ID= "https://codefest.jsclub.me/";
-    final static String PLAYER_ID = "src.hero.player2-xxx";
-    final static String GAME_ID = "5f1d7366-e91b-453a-ad39-545805fabc44";
+    final static String PLAYER_ID = "player2-xxx";
+    final static String GAME_ID = "e960e245-6d30-4c9a-a447-7b9b54452b3d";
 
     public static String getRandomPath(int length){
         Random rand = new Random();
@@ -30,7 +30,6 @@ public class player2 {
             GameInfo gameInfo = GameUtil.getGameInfo(objects);
             randomPlayer.move(getRandomPath(10));
         };
-
         randomPlayer.setOnTickTackListener(onTickTackListener);
         randomPlayer.connectToServer(SERVER_ID);
     }

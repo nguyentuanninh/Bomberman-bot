@@ -13,7 +13,9 @@
           <root url="jar://$MODULE_DIR$/../../JSClub.CodeFest.SDK.v1.1.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../JSClub.CodeFest.SDK.v1.1.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>

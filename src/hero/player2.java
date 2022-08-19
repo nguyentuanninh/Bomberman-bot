@@ -11,7 +11,7 @@ public class player2 {
 
     final static String SERVER_ID= "https://codefest.jsclub.me/";
     final static String PLAYER_ID = "player2-xxx";
-    final static String GAME_ID = "e960e245-6d30-4c9a-a447-7b9b54452b3d";
+    final static String GAME_ID = "107c4f70-5eb5-4bd6-a641-735b520ac53a";
 
     public static String getRandomPath(int length){
         Random rand = new Random();

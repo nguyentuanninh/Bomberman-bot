@@ -12,7 +12,7 @@ public class hero_hau_2 {
 
     final static String SERVER_ID= "https://codefest.jsclub.me/";
     final static String PLAYER_ID = "player2-xxx";
-    final static String GAME_ID = "e960e245-6d30-4c9a-a447-7b9b54452b3d";
+    final static String GAME_ID = "77189f08-5796-4ac9-9bef-12cbb9380b5c";
 
     public static String getRandomPath(int length){
         Random rand = new Random();

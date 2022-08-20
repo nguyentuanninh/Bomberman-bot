@@ -7,6 +7,7 @@ import jsclub.codefest.sdk.algorithm.BaseAlgorithm;
 import jsclub.codefest.sdk.model.Hero;
 import jsclub.codefest.sdk.socket.data.*;
 import jsclub.codefest.sdk.util.GameUtil;
+import jsclub.codefest.sdk.util.SocketUtil;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -14,7 +15,9 @@ import java.util.List;
 import java.util.Random;
 
 public class player11 {
-
+    static int indexPlayer;
+    static int indexAnotherPlayer;
+    static List<Bomb> follow_bomb_in_range = new ArrayList<>();
     static int[][] mapMatrix;
     static int[][] indexMapMatrix;
     static int w;
@@ -22,7 +25,7 @@ public class player11 {
     static int checkStop= 0;
     final static String SERVER_ID= "https://codefest.jsclub.me/";
     final static String PLAYER_ID = "player1-xxx";
-    final static String GAME_ID = "c10a160d-d034-4331-b94e-305fa1682d9b";
+    final static String GAME_ID = "222c2448-4bb5-4121-b96a-1c60aef84486";
     public static String getRandomPath(int length){
         Random rand = new Random();
 
@@ -192,6 +195,41 @@ public class player11 {
         return tiles;
     }
 
+    public static boolean isEnemyInRange(Position location, MapInfo mapInfo){
+        if(location.getRow() == mapInfo.players.get(indexAnotherPlayer).currentPosition.getRow() || location.getCol() == mapInfo.players.get(indexAnotherPlayer).currentPosition.getCol()){
+            if(BaseAlgorithm.manhattanDistance(location,mapInfo.players.get(indexAnotherPlayer).currentPosition) <= mapInfo.players.get(indexPlayer).power){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isHumanNear(Position location, MapInfo mapInfo){
+        for(Human human: mapInfo.getHuman()){
+            if(!human.infected & BaseAlgorithm.manhattanDistance(location,human.position) < 6){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Position get_Human_Nearest(Position location, MapInfo mapInfo){
+        int distance;
+        int minDistance= Integer.MAX_VALUE;
+        Position target= null;
+
+            for(Human human: mapInfo.getHuman()){
+                distance= BaseAlgorithm.manhattanDistance(location, human.position);
+                if(distance< minDistance){
+                    minDistance= distance;
+                    target= human.position;
+                }
+            }
+
+            return target;
+
+    }
+
 
 
     public static void main(String[] args) {
@@ -206,8 +244,6 @@ public class player11 {
 
 
             List<Position> restrictPosition = new ArrayList<>();
-            int indexPlayer;
-            int indexAnotherPlayer;
             if(mapInfo.players.get(0).id.equals(randomPlayer.getPlayerID())){
                 indexPlayer= 0;indexAnotherPlayer= 1;
             } else {
@@ -223,6 +259,7 @@ public class player11 {
             restrictPosition.addAll(mapInfo.balk);
             restrictPosition.addAll(mapInfo.walls);
             restrictPosition.addAll(mapInfo.quarantinePlace);
+            restrictPosition.add(mapInfo.players.get(indexAnotherPlayer).currentPosition);
 
             if(mapInfo.players.get(indexPlayer).pill< 1){
                 for(int i= 0;i< mapInfo.human.size(); ++i){
@@ -248,24 +285,24 @@ public class player11 {
             List<Position> get_balk_tiles= get_balk_tiles(mapInfo.balk,get_titles_surround);
             List<Bomb> get_bomb_in_range = get_bomb_in_range(mapInfo.getCurrentPosition(randomPlayer), mapInfo.bombs, mapInfo);
 
-            int distance;
-            int minDistance= Integer.MAX_VALUE;
             Position target = new Position(0, 0);
             int check = 0;
-            List<Bomb> follow_bomb_in_range = new ArrayList<>();
+
             int powerBomb;
             String path="";
             if(get_bomb_in_range.size()> 0){
+                int distance;
+                int minDistance= Integer.MAX_VALUE;
                 follow_bomb_in_range.addAll(get_bomb_in_range);
                 List<Position> avoidPosition = new ArrayList<>();
+                List<Position> avoidBomb = new ArrayList<>();
                 avoidPosition.addAll(restrictPosition);
                 avoidPosition.add(mapInfo.players.get(indexAnotherPlayer).currentPosition);
                 for(Bomb bomb:get_bomb_in_range){
                     if(bomb.playerId.equals(mapInfo.players.get(0).id)) powerBomb = mapInfo.players.get(0).power;
                     else powerBomb=  mapInfo.players.get(1).power;
-                    avoidPosition.addAll(getTilesInBombRange(bomb.getRow(), bomb.getCol(), powerBomb));
+                    avoidBomb.addAll(getTilesInBombRange(bomb.getRow(), bomb.getCol(), powerBomb));
                 }
-
                 for(int i= 0; i< h; ++i){
                     for(int j= 0; j< w; ++j){
                         check= 0;
@@ -277,9 +314,14 @@ public class player11 {
                                 break;
                             }
                         }
+                        for(Position bomb: avoidBomb){
+                            if(k.getRow()== bomb.getCol() && k.getCol()== bomb.getRow()){
+                                check = 1;
+                                break;
+                            }
+                        }
 
                         if(check== 0 && mapMatrix[i][j]!= 0) {
-                            System.out.println("i j khacs 0" + i+" "+ j+ " : "+ mapMatrix[i][j]);
                             check= 1;
                         }
                         if(check == 0){
@@ -292,50 +334,60 @@ public class player11 {
 
                     }
                 }
-                System.out.println("target: " + target.getRow() +" "+ target.getCol());
-//                System.out.println(mapMatrix[target.getRow()][target.getCol()]);
-                System.out.println(mapMatrix[target.getRow()][target.getCol()]);
 
                 path=AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer),target);
-                System.out.println("in range bomb");
                 randomPlayer.move(path);
                 checkStop= 1;
             }
-//            if(follow_bomb_in_range.size()> 0){
-//                for(Bomb bomb: follow_bomb_in_range){
-//                    if(bomb.remainTime == 0) follow_bomb_in_range.remove(bomb);
-//                }
-//                if(follow_bomb_in_range.size()== 0) checkStop = 0;
-//            }
+            else if(follow_bomb_in_range.size()> 0){
+                for(int i= 0 ; i< follow_bomb_in_range.size(); ++i){
+                    int k= 1;
+                    for(Bomb bb: mapInfo.bombs){
+                        if(follow_bomb_in_range.get(i).getCol() == bb.getCol() && follow_bomb_in_range.get(i).getRow() == bb. getRow()){
+                            k =0;
+                        }
+                    }
+                    if(k == 1) follow_bomb_in_range.remove(i);
+                }
+            } else if(follow_bomb_in_range.size()== 0) checkStop = 0;
 
             if (checkStop== 0){
-                if(mapInfo.spoils.size()> 0 ){
+                int distance;
+                int minDistance= Integer.MAX_VALUE;
+                if(isEnemyInRange(mapInfo.getCurrentPosition(randomPlayer), mapInfo)){
+                    randomPlayer.move("b");
+                }
+                else if(isHumanNear(mapInfo.getCurrentPosition(randomPlayer), mapInfo)){
+                    target= get_Human_Nearest(mapInfo.getCurrentPosition(randomPlayer), mapInfo);
+                    path= AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer),target);
+                    randomPlayer.move(path);
+                }
+
+                else if(mapInfo.spoils.size()> 0 ){
                     for(int i = 0; i< mapInfo.spoils.size(); ++i){
                             distance= BaseAlgorithm.manhattanDistance(mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i));
                             if(distance< minDistance && AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer),mapInfo.spoils.get(i)).length() > 0){
                                 target=mapInfo.spoils.get(i);
                                 minDistance= distance;
                             }
-
                     }
-
                     if(target != null){
                         path= AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer),target);
                     }
 
-                   // randomPlayer.move(path);
+                    randomPlayer.move(path);
                     if (get_balk_tiles.size()> 0){
-                       // randomPlayer.move("b");
+                        randomPlayer.move("b");
                     }
                 }
-//                if (path.equals("")){
-//                    randomPlayer.move(getRandomPath(1));
-//                }
+                if (path.equals("")){
+                    randomPlayer.move(getRandomPath(1));
+                    if (get_balk_tiles.size()> 0){
+                        randomPlayer.move("b");
+                    }
+                }
             }
             System.out.println("-------");
-
-
-
 
 
 //            path= next_move(mapInfo.getCurrentPosition(randomPlayer),mapInfo,randomPlayer,restrictPosition);

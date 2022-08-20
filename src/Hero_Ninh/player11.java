@@ -22,7 +22,7 @@ public class player11 {
     static int checkStop= 0;
     final static String SERVER_ID= "https://codefest.jsclub.me/";
     final static String PLAYER_ID = "player1-xxx";
-    final static String GAME_ID = "21a85705-0859-4580-94ba-8759df2f22f9";
+    final static String GAME_ID = "c10a160d-d034-4331-b94e-305fa1682d9b";
     public static String getRandomPath(int length){
         Random rand = new Random();
 
@@ -50,7 +50,7 @@ public class player11 {
 
             k= new Position(bomb.getCol(),bomb.getRow());
             distance= BaseAlgorithm.manhattanDistance(location, k);
-            if(distance<= power && location.getCol()== bomb.getCol() || location.getRow()== bomb.getRow()){
+            if(distance<= power && (location.getCol()== bomb.getCol() || location.getRow()== bomb.getRow())){
                 bomb_in_range.add(bomb);
             }
         }
@@ -207,9 +207,13 @@ public class player11 {
 
             List<Position> restrictPosition = new ArrayList<>();
             int indexPlayer;
+            int indexAnotherPlayer;
             if(mapInfo.players.get(0).id.equals(randomPlayer.getPlayerID())){
-                indexPlayer= 0;
-            } else indexPlayer= 1;
+                indexPlayer= 0;indexAnotherPlayer= 1;
+            } else {
+                indexPlayer= 1;
+                indexAnotherPlayer=0;
+            }
 
             //-------------------------
             //thêm các vật cần tránh
@@ -244,21 +248,75 @@ public class player11 {
             List<Position> get_balk_tiles= get_balk_tiles(mapInfo.balk,get_titles_surround);
             List<Bomb> get_bomb_in_range = get_bomb_in_range(mapInfo.getCurrentPosition(randomPlayer), mapInfo.bombs, mapInfo);
 
+            int distance;
+            int minDistance= Integer.MAX_VALUE;
+            Position target = new Position(0, 0);
+            int check = 0;
+            List<Bomb> follow_bomb_in_range = new ArrayList<>();
+            int powerBomb;
             String path="";
+            if(get_bomb_in_range.size()> 0){
+                follow_bomb_in_range.addAll(get_bomb_in_range);
+                List<Position> avoidPosition = new ArrayList<>();
+                avoidPosition.addAll(restrictPosition);
+                avoidPosition.add(mapInfo.players.get(indexAnotherPlayer).currentPosition);
+                for(Bomb bomb:get_bomb_in_range){
+                    if(bomb.playerId.equals(mapInfo.players.get(0).id)) powerBomb = mapInfo.players.get(0).power;
+                    else powerBomb=  mapInfo.players.get(1).power;
+                    avoidPosition.addAll(getTilesInBombRange(bomb.getRow(), bomb.getCol(), powerBomb));
+                }
+
+                for(int i= 0; i< h; ++i){
+                    for(int j= 0; j< w; ++j){
+                        check= 0;
+                        Position k= new Position(j, i);
+
+                        for(Position bomb: avoidPosition){
+                            if(k.getRow()== bomb.getRow() && k.getCol()== bomb.getCol()){
+                                check = 1;
+                                break;
+                            }
+                        }
+
+                        if(check== 0 && mapMatrix[i][j]!= 0) {
+                            System.out.println("i j khacs 0" + i+" "+ j+ " : "+ mapMatrix[i][j]);
+                            check= 1;
+                        }
+                        if(check == 0){
+                            distance= BaseAlgorithm.manhattanDistance(mapInfo.getCurrentPosition(randomPlayer), k);
+                            if(distance< minDistance && AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer),k).length() > 0){
+                                target=k;
+                                minDistance= distance;
+                            }
+                        }
+
+                    }
+                }
+                System.out.println("target: " + target.getRow() +" "+ target.getCol());
+//                System.out.println(mapMatrix[target.getRow()][target.getCol()]);
+                System.out.println(mapMatrix[target.getRow()][target.getCol()]);
+
+                path=AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer),target);
+                System.out.println("in range bomb");
+                randomPlayer.move(path);
+                checkStop= 1;
+            }
+//            if(follow_bomb_in_range.size()> 0){
+//                for(Bomb bomb: follow_bomb_in_range){
+//                    if(bomb.remainTime == 0) follow_bomb_in_range.remove(bomb);
+//                }
+//                if(follow_bomb_in_range.size()== 0) checkStop = 0;
+//            }
+
             if (checkStop== 0){
                 if(mapInfo.spoils.size()> 0 ){
-                    Position target = new Position(0,0);
-                    int distance;
-                    int minDistance= Integer.MAX_VALUE;
-
                     for(int i = 0; i< mapInfo.spoils.size(); ++i){
-                        if(mapInfo.spoils.get(i).spoil_type != 4){   // k ăn spoil loại 4 (delay)
                             distance= BaseAlgorithm.manhattanDistance(mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i));
                             if(distance< minDistance && AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer),mapInfo.spoils.get(i)).length() > 0){
                                 target=mapInfo.spoils.get(i);
                                 minDistance= distance;
                             }
-                        }
+
                     }
 
                     if(target != null){
@@ -273,19 +331,9 @@ public class player11 {
 //                if (path.equals("")){
 //                    randomPlayer.move(getRandomPath(1));
 //                }
-            } else randomPlayer.move("x");
+            }
             System.out.println("-------");
-            int powerBomb = 0;
 
-                for (Bomb bomb:mapInfo.bombs){
-                    if(bomb.playerId.equals(mapInfo.players.get(0).id)) powerBomb = mapInfo.players.get(0).power;
-                    else powerBomb=  mapInfo.players.get(1).power;
-                    System.out.println(powerBomb);
-                    List<Position> k= getTilesInBombRange(bomb.getRow(), bomb.getCol(), powerBomb);
-                    for(Position s:k){
-                        System.out.println(s.getRow()+" "+ s.getCol());
-                    }
-                }
 
 
 

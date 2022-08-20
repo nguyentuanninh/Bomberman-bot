@@ -24,7 +24,7 @@ public class hero_hau_1 {
             System.out.println(mapInfo.human.get(0));
         };
 
-
+        // hi mình là Linda nè
         randomPlayer.setOnTickTackListener(onTickTackListener);
         randomPlayer.connectToServer(SERVER_ID);
     }

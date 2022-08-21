@@ -22,10 +22,12 @@ public class player11 {
     static int w;
     static int h;
     static int checkStop = 0;
-    final static String SERVER_ID = "https://codefest.jsclub.me/";
-    final static String PLAYER_ID = "player1-xxx";
-    final static String GAME_ID = "6882d06c-5600-409a-892e-6cfb7f63a0f8";
-
+    final static String SERVER_ID = "http://192.168.0.2:5001/";
+//    final static String SERVER_ID = "https://codefest.jsclub.me/";
+//    final static String PLAYER_ID = "player1-xxx";
+    final static String PLAYER_ID = "b8635eca-f5b1-45b9-8028-79a58ee5d663";
+    final static String GAME_ID = "f3ba4542-f692-46bc-b18b-5831e61358f4";
+//    final static String GAME_ID = "f3ba4542-f692-46bc-b18b-5831e61358f4";
     public static String getRandomPath(int length) {
         Random rand = new Random();
 
@@ -143,7 +145,7 @@ public class player11 {
 
     public static boolean isHumanNear(Position location, MapInfo mapInfo, List<Position> restrictPosition, Hero randomPlayer) {
         for (Human human : mapInfo.getHuman()) {
-            if (!human.infected && BaseAlgorithm.manhattanDistance(location, human.position) < 20  && AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), human.position).length() > 0) {
+            if (!human.infected && BaseAlgorithm.manhattanDistance(location, human.position) < 10  && AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), human.position).length() > 0) {
                 return true;
             }
         }
@@ -260,6 +262,15 @@ public class player11 {
 
             int powerBomb;
             String path = "";
+
+            if(mapInfo.players.get(indexAnotherPlayer).lives == 1){
+                target= mapInfo.players.get(indexAnotherPlayer).currentPosition;
+                if(AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), target).length() > 0){
+                    path= AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), target);
+                    randomPlayer.move(path);
+                }
+            }
+
             if (get_bomb_in_range.size() > 0) {
                 int distance;
                 int minDistance = Integer.MAX_VALUE;
@@ -349,47 +360,47 @@ public class player11 {
                         randomPlayer.move(path);
                     }
                 } else if (mapInfo.spoils.size() > 0) {
-                    Collections.sort(mapInfo.getSpoils(), new Comparator<Spoil>() {
-                        @Override
-                        public int compare(Spoil o1, Spoil o2) {
-                            if (getDistance(o1, mapInfo.getCurrentPosition(randomPlayer)) > getDistance(o2, mapInfo.getCurrentPosition(randomPlayer))) {
-                                return 1;
-                            } else if (getDistance(o1, mapInfo.getCurrentPosition(randomPlayer)) < getDistance(o2, mapInfo.getCurrentPosition(randomPlayer))) {
-                                return -1;
-                            } else return 0;
+//                    Collections.sort(mapInfo.getSpoils(), new Comparator<Spoil>() {
+//                        @Override
+//                        public int compare(Spoil o1, Spoil o2) {
+//                            if (getDistance(o1, mapInfo.getCurrentPosition(randomPlayer)) > getDistance(o2, mapInfo.getCurrentPosition(randomPlayer))) {
+//                                return 1;
+//                            } else if (getDistance(o1, mapInfo.getCurrentPosition(randomPlayer)) < getDistance(o2, mapInfo.getCurrentPosition(randomPlayer))) {
+//                                return -1;
+//                            } else return 0;
+//                        }
+//                    });
+//                    Spoil targett = mapInfo.getSpoils().get(0);
+//                    if (targett.spoil_type == 5 || targett.spoil_type == 3) {
+//                        Position targetPosition = new Position(targett.getCol(), targett.getRow());
+//                        path = AStarSearch.aStarSearch(mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), targetPosition);
+//                        int col = mapInfo.getCurrentPosition(randomPlayer).getCol();
+//                        int row = mapInfo.getCurrentPosition(randomPlayer).getRow();
+//                        if (mapMatrix[row - 1][col] == 6 || mapMatrix[row - 1][col] == 7) {
+//                            randomPlayer.move("4");
+//                        } else if (mapMatrix[row + 1][col] == 6 || mapMatrix[row + 1][col] == 7) {
+//                            randomPlayer.move("3");
+//                        } else if (mapMatrix[row][col - 1] == 6 || mapMatrix[row][col - 1] == 7) {
+//                            randomPlayer.move("2");
+//                        } else if (mapMatrix[row][col + 1] == 6 || mapMatrix[row][col + 1] == 7) {
+//                            randomPlayer.move("1");
+//                        }
+//                        randomPlayer.move(path);
+//                    }
+
+
+                    for (int i = 0; i < mapInfo.spoils.size(); ++i) {
+                        distance = BaseAlgorithm.manhattanDistance(mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i));
+                        if (distance < minDistance && AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i)).length() > 0) {
+                            target = mapInfo.spoils.get(i);
+                            minDistance = distance;
                         }
-                    });
-                    Spoil targett = mapInfo.getSpoils().get(0);
-                    if (targett.spoil_type == 5 || targett.spoil_type == 3) {
-                        Position targetPosition = new Position(targett.getCol(), targett.getRow());
-                        path = AStarSearch.aStarSearch(mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), targetPosition);
-                        int col = mapInfo.getCurrentPosition(randomPlayer).getCol();
-                        int row = mapInfo.getCurrentPosition(randomPlayer).getRow();
-                        if (mapMatrix[row - 1][col] == 6 || mapMatrix[row - 1][col] == 7) {
-                            randomPlayer.move("4");
-                        } else if (mapMatrix[row + 1][col] == 6 || mapMatrix[row + 1][col] == 7) {
-                            randomPlayer.move("3");
-                        } else if (mapMatrix[row][col - 1] == 6 || mapMatrix[row][col - 1] == 7) {
-                            randomPlayer.move("2");
-                        } else if (mapMatrix[row][col + 1] == 6 || mapMatrix[row][col + 1] == 7) {
-                            randomPlayer.move("1");
-                        }
-                        randomPlayer.move(path);
+                    }
+                    if (target != null) {
+                        path = AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), target);
                     }
 
-
-//                    for (int i = 0; i < mapInfo.spoils.size(); ++i) {
-//                        distance = BaseAlgorithm.manhattanDistance(mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i));
-//                        if (distance < minDistance && AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i)).length() > 0) {
-//                            target = mapInfo.spoils.get(i);
-//                            minDistance = distance;
-//                        }
-//                    }
-//                    if (target != null) {
-//                        path = AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), target);
-//                    }
-//
-//                    randomPlayer.move(path);
+                    randomPlayer.move(path);
                 }
                 if (path.equals("")) {
                     target= get_balk_nearest(mapInfo.getCurrentPosition(randomPlayer), mapInfo, restrictPosition, randomPlayer);
@@ -439,5 +450,3 @@ public class player11 {
         randomPlayer.connectToServer(SERVER_ID);
     }
 }
-
-

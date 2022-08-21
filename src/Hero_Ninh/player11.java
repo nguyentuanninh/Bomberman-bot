@@ -23,8 +23,8 @@ public class player11 {
     static int h;
     static int checkStop = 0;
     final static String SERVER_ID = "https://codefest.jsclub.me/";
-    final static String PLAYER_ID = "player2-xxx";
-    final static String GAME_ID = "6587a97e-9db4-4d96-acab-af12faa34f20";
+    final static String PLAYER_ID = "player1-xxx";
+    final static String GAME_ID = "6882d06c-5600-409a-892e-6cfb7f63a0f8";
 
     public static String getRandomPath(int length) {
         Random rand = new Random();
@@ -109,68 +109,6 @@ public class player11 {
     }
 
     //nhập vào vị trí hiện tại list empty tiles, bombs,power cuả bomb tìm vị trí an toàn để di chuyển
-    public static Position get_safest_tile(Position location, List<Position> tiles, List<Position> bombs) {
-        Position closest_bomb = bombs.get(0);
-        int bomb_distance = 100;
-        int new_bomb_distance;
-        for (Position bomb : bombs) {
-            new_bomb_distance = BaseAlgorithm.manhattanDistance(bomb, location);
-            if (new_bomb_distance < bomb_distance) {
-                bomb_distance = new_bomb_distance;
-                closest_bomb = bomb;
-            }
-        }
-        int distance = 0;
-        int new_distance = 0;
-        Position target = new Position(0, 0);
-        for (Position tile : tiles) {
-            new_distance = BaseAlgorithm.manhattanDistance(closest_bomb, tile);
-            if (new_distance > distance) {
-                distance = new_distance;
-                target = tile;
-            }
-        }
-        return target;
-    }
-
-    public static String next_move(Position location, MapInfo mapInfo, Hero hero, List<Position> restrictPosition) {
-        String path = "";
-        List<Bomb> bomb_in_range = get_bomb_in_range(location, mapInfo.bombs, mapInfo);
-        List<Position> surround_tiles = get_surround_tiles(mapInfo.size, location);
-        List<Position> empty_tiles = get_empty_tiles(mapInfo.blank, surround_tiles);
-        Position target;
-        System.out.println("---------");
-        System.out.println(bomb_in_range);
-        int check = 0;
-        // nếu đang đứng trên bomb thì check =1;
-        for (Bomb bomb : mapInfo.bombs) {
-            if (bomb.getCol() == location.getCol() && bomb.getRow() == location.getRow()) {
-                check = 1;
-            }
-        }
-        if (check == 1) {
-            if (empty_tiles.size() > 0) {
-                path = AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(hero), empty_tiles.get(0));
-                path += "xx";
-            } else path = "xx";
-        }
-        //nếu đag đừng gần bomb trong phạm vi nổ;
-//        else if(bomb_in_range.size()> 0){
-//            if(empty_tiles.size()> 0){
-//                target= get_safest_tile(location,empty_tiles,bomb_in_range);
-//                path= AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(hero),target);
-//                path+="xx";
-//            } else path= "x";
-//        }
-
-        //nếu k có bomb xung quanh
-        else {
-            path = "b";
-        }
-
-        return path;
-    }
-
     public static void getTilesInBombDir(int x, int y, int xdir, int ydir, List<Position> tiles, int power) {
         for (int i = 1; i <= power; ++i) {
             int xx = x + (i * xdir), yy = y + (i * ydir);
@@ -424,7 +362,7 @@ public class player11 {
                     Spoil targett = mapInfo.getSpoils().get(0);
                     if (targett.spoil_type == 5 || targett.spoil_type == 3) {
                         Position targetPosition = new Position(targett.getCol(), targett.getRow());
-                        String pathh = AStarSearch.aStarSearch(mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), targetPosition);
+                        path = AStarSearch.aStarSearch(mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), targetPosition);
                         int col = mapInfo.getCurrentPosition(randomPlayer).getCol();
                         int row = mapInfo.getCurrentPosition(randomPlayer).getRow();
                         if (mapMatrix[row - 1][col] == 6 || mapMatrix[row - 1][col] == 7) {
@@ -436,7 +374,7 @@ public class player11 {
                         } else if (mapMatrix[row][col + 1] == 6 || mapMatrix[row][col + 1] == 7) {
                             randomPlayer.move("1");
                         }
-                        randomPlayer.move(pathh);
+                        randomPlayer.move(path);
                     }
 
 

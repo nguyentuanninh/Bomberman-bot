@@ -10,9 +10,8 @@ import jsclub.codefest.sdk.util.GameUtil;
 import jsclub.codefest.sdk.util.SocketUtil;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 public class player11 {
     static int indexPlayer;
@@ -25,7 +24,7 @@ public class player11 {
     static int checkStop = 0;
     final static String SERVER_ID = "https://codefest.jsclub.me/";
     final static String PLAYER_ID = "player2-xxx";
-    final static String GAME_ID = "24073ee2-1766-4472-b41a-e5c97b4975b1";
+    final static String GAME_ID = "6587a97e-9db4-4d96-acab-af12faa34f20";
 
     public static String getRandomPath(int length) {
         Random rand = new Random();
@@ -259,6 +258,12 @@ public class player11 {
         return target;
     }
 
+    public static double getDistance(Spoil spoil, Position pos){
+        double distance = Math.sqrt(Math.pow(((double)pos.getCol() - (double)spoil.getCol()),2) +
+                Math.pow(((double)pos.getRow() - (double)spoil.getRow()),2));
+        return distance;
+    }
+
     public static void main(String[] args) {
         Hero randomPlayer = new Hero(PLAYER_ID, GAME_ID);
         Emitter.Listener onTickTackListener = objects -> {
@@ -380,7 +385,7 @@ public class player11 {
             if (checkStop == 0) {
                 int distance;
                 int minDistance = Integer.MAX_VALUE;
-                if (mapInfo.players.get(indexPlayer).pill > 3) {
+                if (mapInfo.players.get(indexPlayer).pill > 2) {
                     target = getHumanNear(mapInfo.getCurrentPosition(randomPlayer), mapInfo, restrictPosition, randomPlayer);
                     if (target != null) {
                         path = AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), target);
@@ -395,21 +400,36 @@ public class player11 {
                         randomPlayer.move(path);
                     }
                 } else if (mapInfo.spoils.size() > 0) {
-                    for (int i = 0; i < mapInfo.spoils.size(); ++i) {
-                        distance = BaseAlgorithm.manhattanDistance(mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i));
-                        if (distance < minDistance && AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i)).length() > 0) {
-                            target = mapInfo.spoils.get(i);
-                            minDistance = distance;
+                    Collections.sort(mapInfo.getSpoils(), new Comparator<Spoil>() {
+                        @Override
+                        public int compare(Spoil o1, Spoil o2) {
+                            if (getDistance(o1, mapInfo.getCurrentPosition(randomPlayer)) > getDistance(o2, mapInfo.getCurrentPosition(randomPlayer))) {
+                                return 1;
+                            } else if (getDistance(o1, mapInfo.getCurrentPosition(randomPlayer)) < getDistance(o2, mapInfo.getCurrentPosition(randomPlayer))) {
+                                return -1;
+                            } else return 0;
                         }
-                    }
-                    if (target != null) {
-                        path = AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), target);
+                    });
+                    Spoil targett = mapInfo.getSpoils().get(0);
+                    if (targett.spoil_type == 5 || targett.spoil_type == 3) {
+                        Position targetPosition = new Position(targett.getCol(), targett.getRow());
+                        String pathh = AStarSearch.aStarSearch(mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), targetPosition);
+                        randomPlayer.move(pathh);
                     }
 
-                    randomPlayer.move(path);
-//                    if (get_balk_tiles.size() > 0) {
-//                        randomPlayer.move("b");
+
+//                    for (int i = 0; i < mapInfo.spoils.size(); ++i) {
+//                        distance = BaseAlgorithm.manhattanDistance(mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i));
+//                        if (distance < minDistance && AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), mapInfo.spoils.get(i)).length() > 0) {
+//                            target = mapInfo.spoils.get(i);
+//                            minDistance = distance;
+//                        }
 //                    }
+//                    if (target != null) {
+//                        path = AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), target);
+//                    }
+//
+//                    randomPlayer.move(path);
                 }
                 if (path.equals("")) {
                     target= get_balk_nearest(mapInfo.getCurrentPosition(randomPlayer), mapInfo, restrictPosition, randomPlayer);

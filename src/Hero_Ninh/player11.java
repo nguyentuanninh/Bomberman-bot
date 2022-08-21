@@ -389,6 +389,17 @@ public class player11 {
                     target = getHumanNear(mapInfo.getCurrentPosition(randomPlayer), mapInfo, restrictPosition, randomPlayer);
                     if (target != null) {
                         path = AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), target);
+                        int col = mapInfo.getCurrentPosition(randomPlayer).getCol();
+                        int row = mapInfo.getCurrentPosition(randomPlayer).getRow();
+                        if (mapMatrix[row - 1][col] == 6 || mapMatrix[row - 1][col] == 7) {
+                            randomPlayer.move("4");
+                        } else if (mapMatrix[row + 1][col] == 6 || mapMatrix[row + 1][col] == 7) {
+                            randomPlayer.move("3");
+                        } else if (mapMatrix[row][col - 1] == 6 || mapMatrix[row][col - 1] == 7) {
+                            randomPlayer.move("2");
+                        } else if (mapMatrix[row][col + 1] == 6 || mapMatrix[row][col + 1] == 7) {
+                            randomPlayer.move("1");
+                        }
                         randomPlayer.move(path);
                     }
                 } else if (isEnemyInRange(mapInfo.getCurrentPosition(randomPlayer), mapInfo)) {
@@ -414,6 +425,17 @@ public class player11 {
                     if (targett.spoil_type == 5 || targett.spoil_type == 3) {
                         Position targetPosition = new Position(targett.getCol(), targett.getRow());
                         String pathh = AStarSearch.aStarSearch(mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), targetPosition);
+                        int col = mapInfo.getCurrentPosition(randomPlayer).getCol();
+                        int row = mapInfo.getCurrentPosition(randomPlayer).getRow();
+                        if (mapMatrix[row - 1][col] == 6 || mapMatrix[row - 1][col] == 7) {
+                            randomPlayer.move("4");
+                        } else if (mapMatrix[row + 1][col] == 6 || mapMatrix[row + 1][col] == 7) {
+                            randomPlayer.move("3");
+                        } else if (mapMatrix[row][col - 1] == 6 || mapMatrix[row][col - 1] == 7) {
+                            randomPlayer.move("2");
+                        } else if (mapMatrix[row][col + 1] == 6 || mapMatrix[row][col + 1] == 7) {
+                            randomPlayer.move("1");
+                        }
                         randomPlayer.move(pathh);
                     }
 
@@ -435,6 +457,17 @@ public class player11 {
                     target= get_balk_nearest(mapInfo.getCurrentPosition(randomPlayer), mapInfo, restrictPosition, randomPlayer);
                     if (target != null) {
                         path = AStarSearch.aStarSearch(mapInfo.mapMatrix, restrictPosition, mapInfo.getCurrentPosition(randomPlayer), target);
+                        int col = mapInfo.getCurrentPosition(randomPlayer).getCol();
+                        int row = mapInfo.getCurrentPosition(randomPlayer).getRow();
+                        if (mapMatrix[row - 1][col] == 6 || mapMatrix[row - 1][col] == 7) {
+                            randomPlayer.move("4");
+                        } else if (mapMatrix[row + 1][col] == 6 || mapMatrix[row + 1][col] == 7) {
+                            randomPlayer.move("3");
+                        } else if (mapMatrix[row][col - 1] == 6 || mapMatrix[row][col - 1] == 7) {
+                            randomPlayer.move("2");
+                        } else if (mapMatrix[row][col + 1] == 6 || mapMatrix[row][col + 1] == 7) {
+                            randomPlayer.move("1");
+                        }
                         randomPlayer.move(path);
                     }
                     if (get_balk_tiles.size() > 0) {
